@@ -29,7 +29,6 @@ public class DanceFloor : EditorWindow
         EditorGUILayout.Space();
 
         //It works fine even if these rules aren't followed, but for an exact diagonal design these need to be followed. Dependent on amount of colors.
-
         GUILayout.Label("In order for this to work correctly...", EditorStyles.boldLabel);
         GUILayout.Label("LENGTH != DEPTH", EditorStyles.boldLabel);
         GUILayout.Label("DEPTH != 5x", EditorStyles.boldLabel); //5 is the number of colors
@@ -37,7 +36,6 @@ public class DanceFloor : EditorWindow
         EditorGUILayout.Space();
 
         //Draws Sliders for adjusting area variables
-
         length = EditorGUILayout.IntSlider("Length", length, 0, 100);
         depth = EditorGUILayout.IntSlider("Depth", depth, 1, 9);
         panelGap = EditorGUILayout.Slider("Panel Gap", panelGap, 0, 10);
