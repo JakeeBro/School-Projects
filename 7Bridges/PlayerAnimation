@@ -1,0 +1,155 @@
+// THIS IS NOT THE FULL SCRIPT, JUST THE PARTS PERTAINING TO THE ANIMATIONS    
+
+    void Movement()
+    {
+
+        rb.velocity = new Vector3 (moveX * speed, rb.velocity.y, moveZ * speed);
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            moveZ = 1; 
+            moveDir = "Up";
+        }
+            
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            moveZ = -1; 
+            moveDir = "Down";
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            moveX = 1; 
+            moveDir = "Right";
+        }
+        if (Input.GetKeyDown (KeyCode.A)) 
+        {
+            moveX = -1; 
+            moveDir = "Left";
+        } 
+
+        if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.S))
+        {
+            moveZ = 0;
+        }
+
+        if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A))
+        {
+            moveX = 0;
+        }
+
+        if (!Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.D) && !Input.GetKey(KeyCode.A))
+        {
+            if (moveDir == "Down")
+            {
+                playerAnim.Play("Idle Down");
+            }
+
+            else if (moveDir == "Up")
+            {
+                playerAnim.Play("Idle Up");
+            }
+
+            else if (moveDir == "Left")
+            {
+                playerAnim.Play("Idle Left");
+            }
+
+            else if (moveDir == "Right")
+            {
+                playerAnim.Play("Idle Right");
+            }
+        }
+
+        if (rb.velocity.y < 0)
+        {
+            rb.velocity += Vector3.up * Physics.gravity.y * Time.deltaTime;
+        }
+
+        if (rb.velocity.x > 0)
+        {
+            if (moveDir == "Down")
+            {
+                playerAnim.Play("Walk Down");
+            }
+
+            else if (moveDir == "Up")
+            {
+                playerAnim.Play("Walk Up");
+            }
+
+            else if (moveDir == "Left")
+            {
+                playerAnim.Play("Walk Left");
+            }
+
+            else if (moveDir == "Right")
+            {
+                playerAnim.Play("Walk Right");
+            }
+        }
+    }
+
+    //Figure out which way the player is facing based on the last input given
+    private void GetMovementDir()
+    {
+        if (rb.velocity.magnitude == 0 && !idle)
+        {
+            idle = true;
+
+            if (moveDir == "Down")
+            {
+                playerAnim.Play("Idle Down");
+            }
+
+            else if (moveDir == "Up")
+            {
+                playerAnim.Play("Idle Up");
+            }
+
+            else if (moveDir == "Left")
+            {
+                playerAnim.Play("Idle Left");
+            }
+
+            else if (moveDir == "Right")
+            {
+                playerAnim.Play("Idle Right");
+            }
+        }
+
+        else if (rb.velocity.x > 2 || rb.velocity.x < -2)
+        {
+            idle = false;
+
+            if (rb.velocity.x > 2)
+            {
+                moveDir = "Right";
+                playerAnim.Play("Walk Right");
+            }
+
+            else if (rb.velocity.x < -2)
+            {
+                moveDir = "Left";
+                playerAnim.Play("Walk Left");
+            }    
+        }
+
+        else if (rb.velocity.z > 2 || rb.velocity.z < -2)
+        {
+            idle = false;
+
+            if (rb.velocity.z > 2)
+            {
+                moveDir = "Up";
+                playerAnim.Play("Walk Up");
+            }
+
+            else if (rb.velocity.z < -2)
+            {
+                moveDir = "Down";
+                playerAnim.Play("Walk Down");
+            }   
+        }
+    }
+}
