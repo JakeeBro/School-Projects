@@ -1,0 +1,72 @@
+using UnityEngine;
+using UnityEditor;
+
+public class DanceFloor : EditorWindow
+{
+    GameObject panel = null;
+    private GameObject danceFloor;
+
+    //Area Variables
+
+    int length = 10;
+    int depth = 10;
+    float panelGap = 1;
+
+    [MenuItem("Window/Dance Floor")]
+    public static void ShowWindow()
+    {
+        GetWindow<DanceFloor>("Dance Floor");
+    }
+
+    private void OnGUI()
+    {
+        GUILayout.Label("Use this window to configure the Dance Floor", EditorStyles.boldLabel);
+        
+
+        //Draws a field for inputting an object to spawn
+        panel = (GameObject)EditorGUILayout.ObjectField("Dance Floor Panel", panel, typeof(GameObject), true);
+
+        EditorGUILayout.Space();
+
+        //It works fine even if these rules aren't followed, but for an exact diagonal design these need to be followed. Dependent on amount of colors.
+
+        GUILayout.Label("In order for this to work correctly...", EditorStyles.boldLabel);
+        GUILayout.Label("LENGTH != DEPTH", EditorStyles.boldLabel);
+        GUILayout.Label("DEPTH != 5x", EditorStyles.boldLabel); //5 is the number of colors
+
+        EditorGUILayout.Space();
+
+        //Draws Sliders for adjusting area variables
+
+        length = EditorGUILayout.IntSlider("Length", length, 0, 100);
+        depth = EditorGUILayout.IntSlider("Depth", depth, 1, 9);
+        panelGap = EditorGUILayout.Slider("Panel Gap", panelGap, 0, 10);
+
+
+        if (GUILayout.Button("Boogie Down"))
+        {
+            danceFloor = new GameObject("Dance Floor");
+            int c = 1;
+
+            //Loops through and spawns panels, and sets their default start color based on loop value
+
+            for (int l = 1; l < length + 1; l++)
+            {
+                for (int d = 1; d < depth + 1; d++)
+                {
+                    Instantiate(panel, new Vector3(l * panelGap - 1, 0, d * panelGap - 1), Quaternion.identity, danceFloor.transform);
+                    if (c < panel.GetComponent<PanelV2>().colors.Count)
+                    {
+                        panel.GetComponent<PanelV2>().start = c;
+                        c++;
+                    }
+                    else if (c == panel.GetComponent<PanelV2>().colors.Count)
+                    {
+                        panel.GetComponent<PanelV2>().start = c;
+                        c = 1;
+                    }
+                }
+            }
+        }
+    }
+}
