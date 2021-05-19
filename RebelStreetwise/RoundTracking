@@ -1,0 +1,266 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class RoundTracking : MonoBehaviour
+{
+    //Enum for tracking the current round
+    [HideInInspector] public enum Round
+    {
+        One,
+        Two,
+        Three,
+        Over
+    }
+
+    //Reference to enum
+    public Round currentRound;
+
+    //Round Timing Variables
+    public int roundTimer = 90;
+    public int roundStartDelay = 3;
+    private int midRoundStartDelay = 0;
+
+    //UI Variables
+    public Text currentRoundText;
+    public Text roundTimerText;
+    public Text roundCountdownText;
+    public Text gameOverText;
+
+    //Player Tracking Variables
+    public int player1Health;
+    public int player2Health;
+    public int player3Health;
+    public int player4Health;
+
+    //Team Tracking Variables
+    public int team1Health;
+    public int team2Health;
+
+    public int team1wins;
+    public int team2wins;
+
+    private void Start()
+    {
+        //Set the round to one, display starting text
+        currentRound = Round.One;
+        currentRoundText.text = "ROUND 1";
+
+        //Start the round countdown and grab the Player heath to update the UI
+        StartCoroutine(RoundDelay());
+        StartCoroutine(GetPlayerHealth());
+    }
+
+    private void Update()
+    {
+        //Check if the last round is finished
+        if (currentRound == Round.Over)
+        {
+            //Put Game Over Sequence Here
+            Debug.Log("Game Over");
+        }
+    }
+
+    //Grabs the health for each of the players and sets the team variables accordingly
+    private IEnumerator GetPlayerHealth()
+    {
+        yield return new WaitForSeconds(1);
+
+        player1Health = GameObject.FindGameObjectWithTag("Player1").GetComponent<PlayerInfo>().playerHealth;
+        player2Health = GameObject.FindGameObjectWithTag("Player2").GetComponent<PlayerInfo>().playerHealth;
+        player3Health = GameObject.FindGameObjectWithTag("Player3").GetComponent<PlayerInfo>().playerHealth;
+        player4Health = GameObject.FindGameObjectWithTag("Player4").GetComponent<PlayerInfo>().playerHealth;
+
+        team1Health = player1Health + player2Health;
+        team2Health = player3Health + player4Health;
+
+        team1wins = 0;
+        team2wins = 0;
+    }
+
+    public void ChangeRound()
+    {
+        switch (currentRound)
+        {
+            //Set the variables for each round
+            case Round.One:
+                currentRound = Round.Two;
+                currentRoundText.text = "ROUND 2";
+                ResetHealth();
+                StartCoroutine(MidRoundDelay());
+                break;
+            case Round.Two:
+                currentRound = Round.Three;
+                currentRoundText.text = "ROUND 3";
+                ResetHealth();
+                StartCoroutine(MidRoundDelay());
+                break;
+            case Round.Three:
+                currentRound = Round.Over;
+                currentRoundText.text = "";
+                gameOverText.text = "GAME OVER";
+                SceneManager.LoadScene("CharacterSpawnTest");
+                break;
+        }
+    }
+
+    public void EndGame()
+    {
+        EndAnimation();
+
+        SceneManager.LoadScene("CharacterSpawnTest"); //Restart the scene for testing
+    }
+
+    //Call when a player gets hit
+    public void UpdateHealth()
+    {
+        player1Health = GameObject.FindGameObjectWithTag("Player1").GetComponent<PlayerInfo>().playerHealth;
+        player2Health = GameObject.FindGameObjectWithTag("Player2").GetComponent<PlayerInfo>().playerHealth;
+        player3Health = GameObject.FindGameObjectWithTag("Player3").GetComponent<PlayerInfo>().playerHealth;
+        player4Health = GameObject.FindGameObjectWithTag("Player4").GetComponent<PlayerInfo>().playerHealth;
+
+        team1Health = player1Health + player2Health;
+        team2Health = player3Health + player4Health;
+
+        if (player1Health <= 0 || player2Health <= 0)
+        {
+            team2wins++;
+        }
+
+        if (player3Health <= 0 || player4Health <= 0)
+        {
+            team1wins++;
+        }
+    }
+
+    //Reset the health when a new Round starts
+    private void ResetHealth()
+    {
+        GameObject.FindGameObjectWithTag("Player1").GetComponent<PlayerInfo>().playerHealth = 100;
+        GameObject.FindGameObjectWithTag("Player2").GetComponent<PlayerInfo>().playerHealth = 100;
+        GameObject.FindGameObjectWithTag("Player3").GetComponent<PlayerInfo>().playerHealth = 100;
+        GameObject.FindGameObjectWithTag("Player4").GetComponent<PlayerInfo>().playerHealth = 100;
+
+        player1Health = 1;
+        player2Health = 100;
+        player3Health = 100;
+        player4Health = 100;
+
+        team1Health = player1Health + player2Health;
+        team2Health = player3Health + player4Health;
+    }
+
+    //Initial Delay before round 1
+    private IEnumerator RoundDelay()
+    {
+        //Loop downwards for the delay, and display appropriate UI messages
+        for (int i = roundStartDelay; i >= -1; i--)
+        {
+            if (i > 0)
+            {
+                roundCountdownText.text = i.ToString();
+                yield return new WaitForSeconds(1);
+            }
+            else if (i == 0)
+            {
+                roundCountdownText.text = "FIGHT";
+                yield return new WaitForSeconds(1);
+            }
+            else if (i == -1)
+            {
+                roundCountdownText.text = "";
+                StartCoroutine(RoundTimer());
+            }
+        }
+    }
+
+    //Delay between rounds
+    private IEnumerator MidRoundDelay()
+    {
+        for (int i = midRoundStartDelay; i >= -1; i--)
+        {
+            if (i == 0)
+            {
+                roundCountdownText.text = "FIGHT";
+                yield return new WaitForSeconds(1);
+            }
+            else if (i == -1)
+            {
+                roundCountdownText.text = "";
+                StartCoroutine(RoundTimer());
+            }
+        }
+    }
+
+    //Loop for the Round Timer
+
+    private IEnumerator RoundTimer()
+    {
+        currentRoundText.gameObject.SetActive(true);
+        roundTimerText.gameObject.SetActive(true);
+
+        for (int i = roundTimer; i >= 0; i--)
+        {
+            roundTimerText.text = i.ToString();
+            yield return new WaitForSeconds(1);
+						
+            if (i == 0 && currentRound != Round.Three)
+            {
+                if (team1Health > team2Health)
+                {
+                    team1wins++;
+                    StartCoroutine(EndRound());
+                }
+
+                if (team1Health < team2Health)
+                {
+                    team2wins++;
+                    StartCoroutine(EndRound());
+                }
+
+                if (team1Health == team2Health)
+                {
+                    EndRoundDraw();
+                }
+            }
+        }
+    }
+
+    //Check whether or not a Team has won 2 rounds yet
+
+    private IEnumerator EndRound()
+    {
+        if (team1wins == 2)
+        {
+            EndGame();
+        }
+
+        if (team2wins == 2)
+        {
+            EndGame();
+        }
+
+        else
+        {
+            //Stop Player Input
+            currentRoundText.gameObject.SetActive(false);
+            roundTimerText.gameObject.SetActive(false);
+            yield return new WaitForSeconds(1); //Round Change Delay
+            ChangeRound();
+        }
+    }
+
+    private void EndRoundDraw()
+    {
+        //Stop Player Input
+        ResetHealth();
+        StartCoroutine(MidRoundDelay());
+    }
+
+    private void EndAnimation()
+    {
+        //Put end animation here when it is complete
+    }
+}
