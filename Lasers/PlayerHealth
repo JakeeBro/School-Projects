@@ -1,0 +1,82 @@
+using UnityEngine;
+using TMPro;
+
+public class PlayerHealth : MonoBehaviour
+{
+    //Health and UI Variables
+    #region Variables
+    [SerializeField] private float health = 100;
+    [SerializeField] private int lives = 6; //This is double what it should be because for some reason the laser does 2 damage each hit
+
+    [SerializeField] private Transform spawnPoint;
+
+    [SerializeField] private TextMeshPro healthText;
+    [SerializeField] private TextMeshPro livesText;
+    #endregion
+
+    //Allow other scripts to access variables
+    #region Accessors
+    public float Health
+    {
+        get
+        {
+            return health;
+        }
+        set
+        {
+            health = value;
+        }
+    }
+
+    public int Lives
+    {
+        get
+        {
+            return lives;
+        }
+        set
+        {
+            lives = value;
+        }
+    }
+
+    public Transform SpawnPoint
+    {
+        get
+        {
+            return spawnPoint;
+        }
+    }
+    #endregion
+
+    #region Functions
+    private void Start()
+    {
+        //Sets the Player position to the Spawn Point at the start of the Game
+        transform.position = spawnPoint.transform.position;
+    }
+
+    private void Update()
+    {
+        //Quits the game if there are no Lives remaining
+        if (lives <= 0)
+        {
+            Destroy(gameObject);
+            Application.Quit();
+        }
+
+
+        //Resets Player upon Death
+        else  if (health <= 0)
+        {
+            health = 100;
+            lives -= 2;
+            transform.position = spawnPoint.position;
+        }
+
+        //Update UI
+        healthText.text = "HEALTH: " + Mathf.Round(health);
+        livesText.text = "LIVES: " + lives / 2;
+    }
+    #endregion
+}
