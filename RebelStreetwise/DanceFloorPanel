@@ -20,7 +20,6 @@ public class PanelV2 : MonoBehaviour
         c = start;
 
         //Set object to starting color
-
         gameObject.GetComponent<Renderer>().material = colors[start - 1];
         StartCoroutine(Wait());
     }
