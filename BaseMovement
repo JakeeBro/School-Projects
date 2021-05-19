@@ -1,0 +1,166 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[RequireComponent(typeof(CharacterController))]
+public class BaseMovement : MonoBehaviour
+{
+    public float moveSpeed = 3;
+    public float jumpForce = .25f;
+    public float verticalVelocity;
+    public float gravity = -.7f;
+    public float dashSpeed = 3;
+    public float maxDashTime = 2;
+    public float dashStopSpeed = 0.1f;
+
+    private float currDashTime;
+
+    private CharacterController character;
+
+    private Vector3[] centerArray = new Vector3[2];
+    private float[] radiusArray = new float[2];
+    private float[] heightArray = new float[2];
+    private float centerOffset = 0;
+
+    public bool facingRight = false;
+    bool dashing;
+
+    private void Start()
+    {
+        //Grab the Character Controller
+        character = gameObject.GetComponent<CharacterController>();
+
+        //Set the default Character Controller Collision values and the crouched values
+        for(int i = 0; i < 2; i++)
+        {
+            centerArray[i] = character.center - new Vector3(0, centerOffset, 0);
+            radiusArray[i] = character.radius / (i + 1);
+            heightArray[i] = character.height / (i + 1);
+            centerOffset = 0.25f;
+        }
+    }
+
+    private void Update()
+    {
+        Walk();
+        Jump();
+        Dash();
+        Duck();
+    }
+
+    //Let the Player Walk
+    public void Walk()
+    {
+        //Get the value from the two Default Unity movement axes
+        float deltaX = Input.GetAxis("Horizontal") * moveSpeed;
+        float deltaY = Input.GetAxis("Vertical") * moveSpeed;
+        //Feed them into a Vector2)
+        Vector2 movement = new Vector2(deltaX, deltaY);
+        //Clamp the movement
+        movement = Vector2.ClampMagnitude(movement, moveSpeed);
+        //Make the player move towards the ground constantly
+        movement.y = gravity;
+
+        //Make the movement smoother
+        movement *= Time.deltaTime;
+        //Set transform direction to the same way as movement
+        movement = transform.TransformDirection(movement);
+        //Make the Character Controller move in the direction given from the Input values read earlier
+        character.Move(movement);
+
+        //Set the way the player is facing
+        if (deltaX > 0)
+        {
+            facingRight = true;
+        }
+        else if (deltaX < 0)
+        {
+            facingRight = false;
+        }
+    }
+
+    //Let the Player Jump
+    public void Jump()
+    {
+        if (character.isGrounded && Input.GetKeyDown(KeyCode.W))
+        {
+            verticalVelocity = jumpForce;
+        }
+        else
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
+
+        Vector2 jump = new Vector2(0, verticalVelocity);
+        character.Move(jump);
+    }
+
+    //Check if the Player hits the dash kay and if they are able to dash (Mike, Jake, Cale)
+    public void Dash()
+    {
+        //Directions will be fixed later to work with just one button press dependant on which way the player is actually facing
+        //Dash Left
+        if (Input.GetKeyDown(KeyCode.Q) && !dashing)
+        {
+            StartCoroutine(Dashing(-1));
+        }
+        //Dash Right
+        if (Input.GetKeyDown(KeyCode.E) && !dashing)
+        {
+            StartCoroutine(Dashing(1));
+        }
+    }
+    
+    //Part of Dash
+    IEnumerator Dashing(int direction)
+    {
+        //Set dash to true to prevent multiple dashes in a row
+        dashing = true;
+        //Disable character controller to help fix collision issues
+        character.enabled = false;
+        //Reset velocity, and then immediately set it to the dash speed * direction the player is facing
+        this.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+        this.GetComponent<Rigidbody>().angularVelocity = new Vector3(0, 0, 0);
+        this.GetComponent<Rigidbody>().velocity += (new Vector3(dashSpeed * direction, 0, 0));
+        //Stop the Dash after a set amount of time
+        yield return new WaitForSeconds(maxDashTime);
+        //Reset the  Players Velocity
+        this.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+        this.GetComponent<Rigidbody>().angularVelocity = new Vector3(0, 0, 0);
+        //Enable Character Controller to bring normal collision back
+        character.enabled = true;
+        //Dash cooldown
+        yield return new WaitForSeconds(2);
+        //Enable the ability to Dash again
+        dashing = false;
+    }
+
+    //Let the Player crouch to get under low objects
+    public void Duck()
+    {
+        if (Input.GetKey(KeyCode.S))
+        {
+            //Set the Character Controller collision to set values in an array that are smaller than the normal
+            character.center = centerArray[1];
+            character.radius = radiusArray[1];
+            character.height = heightArray[1];
+        }
+        else
+        {
+            //Reset Character Controller collisions to their original value
+            character.center = centerArray[0];
+            character.radius = radiusArray[0];
+            character.height = heightArray[0];
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        //If the Player hits a wall, reset their velocity to prevent them from going through it, and make them go the other way a bit just to be sure
+        if (other.gameObject.tag == "Wall")
+        {
+            this.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            this.GetComponent<Rigidbody>().AddForce(GetComponent<Rigidbody>().velocity.x * -1, 0, 0);
+        }
+    }
+}
