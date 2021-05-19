@@ -15,7 +15,6 @@ public class StageManager : MonoBehaviour
     private CharacterSpawning cs;
 
     //List of Spawn Points
-
     public List<Transform> spawns = new List<Transform>();
 
     private void Awake()
