@@ -54,17 +54,22 @@ public class BaseMovement : MonoBehaviour
         //Get the value from the two Default Unity movement axes
         float deltaX = Input.GetAxis("Horizontal") * moveSpeed;
         float deltaY = Input.GetAxis("Vertical") * moveSpeed;
+        
         //Feed them into a Vector2)
         Vector2 movement = new Vector2(deltaX, deltaY);
+        
         //Clamp the movement
         movement = Vector2.ClampMagnitude(movement, moveSpeed);
+        
         //Make the player move towards the ground constantly
         movement.y = gravity;
 
         //Make the movement smoother
         movement *= Time.deltaTime;
+        
         //Set transform direction to the same way as movement
         movement = transform.TransformDirection(movement);
+        
         //Make the Character Controller move in the direction given from the Input values read earlier
         character.Move(movement);
 
@@ -99,6 +104,7 @@ public class BaseMovement : MonoBehaviour
     public void Dash()
     {
         //Directions will be fixed later to work with just one button press dependant on which way the player is actually facing
+        
         //Dash Left
         if (Input.GetKeyDown(KeyCode.Q) && !dashing)
         {
@@ -116,21 +122,28 @@ public class BaseMovement : MonoBehaviour
     {
         //Set dash to true to prevent multiple dashes in a row
         dashing = true;
+        
         //Disable character controller to help fix collision issues
         character.enabled = false;
+        
         //Reset velocity, and then immediately set it to the dash speed * direction the player is facing
         this.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
         this.GetComponent<Rigidbody>().angularVelocity = new Vector3(0, 0, 0);
         this.GetComponent<Rigidbody>().velocity += (new Vector3(dashSpeed * direction, 0, 0));
+        
         //Stop the Dash after a set amount of time
         yield return new WaitForSeconds(maxDashTime);
+        
         //Reset the  Players Velocity
         this.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
         this.GetComponent<Rigidbody>().angularVelocity = new Vector3(0, 0, 0);
+        
         //Enable Character Controller to bring normal collision back
         character.enabled = true;
+        
         //Dash cooldown
         yield return new WaitForSeconds(2);
+        
         //Enable the ability to Dash again
         dashing = false;
     }
