@@ -195,7 +195,6 @@ public class RoundTracking : MonoBehaviour
     }
 
     //Loop for the Round Timer
-
     private IEnumerator RoundTimer()
     {
         currentRoundText.gameObject.SetActive(true);
@@ -229,7 +228,6 @@ public class RoundTracking : MonoBehaviour
     }
 
     //Check whether or not a Team has won 2 rounds yet
-
     private IEnumerator EndRound()
     {
         if (team1wins == 2)
