@@ -1,0 +1,28 @@
+using UnityEngine;
+
+public class SetSpawn : MonoBehaviour 
+{
+    //Variables
+    public Object nextScene;                //Used to grab the name of a Set Scene
+    public GameObject gameMaster;           //Reference to the script that adjusts the Player Position
+    public Vector3 setPostion;              //Custom Spawn Point reference
+
+    void Start()
+    {
+        //Grabs the Game Master
+        gameMaster = GameObject.FindGameObjectWithTag ("GameMaster").gameObject;
+    }
+
+    //When the Trigger is activated...
+    public void OnTriggerEnter(Collider collision)
+    {
+        //Check if it was hit by the Player...
+        if (collision.tag.Equals("Player"))
+        {
+            //If yes, then send the Spawn Location Data to the Game Master
+            gameMaster.GetComponent<GameMaster>().positionNew = setPostion;
+            gameMaster.GetComponent<GameMaster>().changePosition = true;
+            gameMaster.GetComponent<GameMaster>().newScene = nextScene;
+        }
+    }
+}
