@@ -36,8 +36,6 @@ public class CharacterSpawning : MonoBehaviour
                         player1.gameObject.tag = "Player1";
                     }
                     break;
-
-
                 case 2:
                     if (playerTwo != null)
                     {
@@ -49,8 +47,6 @@ public class CharacterSpawning : MonoBehaviour
                         player2.gameObject.tag = "Player2";
                     }
                     break;
-
-
                 //Team 2
                 case 3:
                     if (playerThree != null)
@@ -63,8 +59,6 @@ public class CharacterSpawning : MonoBehaviour
                         player3.gameObject.tag = "Player3";
                     }
                     break;
-
-
                 case 4:
                     if (playerOne != null)
                     {
