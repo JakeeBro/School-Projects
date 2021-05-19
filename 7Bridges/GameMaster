@@ -1,0 +1,48 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class GameMaster : MonoBehaviour 
+{
+    //Variables
+    public GameObject player;                 //Player reference
+    public Vector3 positionNew;               //Custom Spawn Location
+    public bool changePosition = false;       //Bool to control when to change the Player position
+    public Object newScene = null;            //Reference to Scene in order to grab its name
+
+    void Awake()
+    {
+        //Make the object Persist between Scenes
+        DontDestroyOnLoad (transform.gameObject);
+    }
+ 
+    void Update ()
+    {
+        //Grab the Player
+        player = GameObject.FindGameObjectWithTag ("Player").gameObject;
+
+        //Allow the Script to change the Player position
+        if (changePosition == true)
+        {
+            ChangeSpawn ();
+            changePosition = false;
+        }
+    }
+
+    //Changes the Scene and starts the coroutine that updates the Player position
+    void ChangeSpawn()
+    {
+        SceneManager.LoadScene(newScene.name);
+        StartCoroutine("SpawnChange", .0f);
+    }
+    
+    //Updates Player position
+    IEnumerator SpawnChange(float SpawnDelay)
+    {
+        //Wait for however long in order to prevent errors from setting position before the new Scene loads
+        yield return new WaitForSeconds(SpawnDelay);
+
+        //Update Player position
+        player.transform.position = positionNew;
+    }
+}
