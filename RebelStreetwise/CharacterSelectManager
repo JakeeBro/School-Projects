@@ -2,13 +2,9 @@
  * Place on the GameManager object
  */
 
-​
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-​
 
 public class CharacterSelectManager : MonoBehaviour
 {
@@ -16,14 +12,10 @@ public class CharacterSelectManager : MonoBehaviour
     //Reference in order to pass the selected characters between scenes
     private CharacterSpawning cs;
 
-​
-
     private void Awake()
     {
         cs = GameObject.FindGameObjectWithTag("CrossSceneManager").GetComponent<CharacterSpawning>();
     }
-
-​
 
     //Set the Player Character to the Appropriate Character according to the script on the UI Elements
     public void SetPlayerCharacter(int player, GameObject character)
